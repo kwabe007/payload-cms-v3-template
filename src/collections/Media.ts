@@ -9,7 +9,10 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
-      required: true,
+      admin: {
+        description:
+          'The alt attribute is a short text description of an image that helps screen readers convey its meaning and appears if the image fails to load.',
+      },
     },
   ],
   upload: {
