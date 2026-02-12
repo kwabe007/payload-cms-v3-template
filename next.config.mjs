@@ -12,6 +12,14 @@ const nextConfig = {
 
     return webpackConfig
   },
+
+  output: 'standalone',
+
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })
