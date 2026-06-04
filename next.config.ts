@@ -23,6 +23,7 @@ const nextConfig: NextConfig = {
 
     return webpackConfig
   },
+  output: 'standalone',
   turbopack: {
     root: path.resolve(dirname),
   },
