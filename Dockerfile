@@ -2,6 +2,10 @@ ARG PNPM_VERSION=11.1.1
 
 FROM node:24.15.0-alpine AS base
 
+# Read S3_BUCKET env var into Dockerfile so that the appropriate import map can be generated
+ARG S3_BUCKET
+ENV S3_BUCKET=$S3_BUCKET
+
 # Prevent "No TTY" errors from pnpm
 ENV CI=true
 

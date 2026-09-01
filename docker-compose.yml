@@ -4,6 +4,8 @@ services:
   cms:
     build:
       context: .
+      args:
+        S3_BUCKET: ${S3_BUCKET}
     environment:
       # Override the database URL since the regular local db uses push mode and container will run in regular migration
       # mode.
