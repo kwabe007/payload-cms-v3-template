@@ -1,0 +1,103 @@
+name: Deploy to main
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+"
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  STAGING_WORKFLOW_NAME: Build and deploy to staging
+  GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
+  GITLAB_PASSWORD: ${{ secrets.GITLAB_PASSWORD }}
+  REGISTRY: registry.gitlab.com
+  DOKPLOY_DEPLOY_ENDPOINT: ${{ vars.DOKPLOY_DEPLOY_ENDPOINT }}
+  DOKPLOY_ACCESS_TOKEN: ${{ secrets.DOKPLOY_ACCESS_TOKEN }}
+  DOKPLOY_MAIN_APP_ID: ${{ vars.DOKPLOY_MAIN_APP_ID }}
+  IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+
+jobs:
+  verify-staging-success:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Verify staging workflow succeeded for this commit
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          COMMIT_SHA=$(git rev-parse HEAD)
+
+          RUN=$(gh api repos/$GITHUB_REPOSITORY/actions/runs \
+            --jq "
+              .workflow_runs
+              | map(select(.head_sha == \"$COMMIT_SHA\"))
+              | map(select(.name == \"$STAGING_WORKFLOW_NAME\"))
+              | sort_by(.created_at)
+              | reverse
+              | .[0]
+            ")
+
+          if [ -z "${RUN//[[:space:]]/}" ]; then
+            echo "No '$STAGING_WORKFLOW_NAME' workflow run found for commit $COMMIT_SHA"
+            exit 1
+          fi
+
+          STATUS=$(echo "$RUN" | jq -r '.conclusion')
+
+          echo "Latest '$STAGING_WORKFLOW_NAME' run conclusion: $STATUS"
+
+          if [ "$STATUS" != "success" ]; then
+            echo "'$STAGING_WORKFLOW_NAME' workflow did not succeed"
+            exit 1
+          fi
+
+          echo "'$STAGING_WORKFLOW_NAME' workflow succeeded"
+
+      - name: Delete tag on failure
+        if: failure()
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          echo "Deleting tag $TAG_NAME"
+          git push origin --delete "$TAG_NAME"
+
+  deploy-latest:
+    needs: verify-staging-success
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up crane
+        uses: imjasonh/setup-crane@v0.1
+
+      - name: Update remote image tag
+        run: |
+          crane auth login $REGISTRY -u $GITLAB_USERNAME -p $GITLAB_PASSWORD
+          crane tag $IMAGE_NAME:staging latest
+
+      - name: Deploy to main instance
+        run: |
+          tmpfile=$(mktemp)
+
+          status=$(curl -s -o "$tmpfile" -w "%{http_code}" -X POST \
+          "$DOKPLOY_DEPLOY_ENDPOINT" \
+          -H "x-api-key: $DOKPLOY_ACCESS_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d "{ \"applicationId\": \"$DOKPLOY_MAIN_APP_ID\"}")
+
+          body=$(cat "$tmpfile")
+          rm "$tmpfile"
+
+          if [[ ! $status =~ ^2 ]]; then
+            echo "Deployment failed (status $status)" >&2
+            echo "Response from server:" >&2
+            echo "$body" >&2
+            exit 1
+          fi
+
+          echo "Deployment queued successfully"
