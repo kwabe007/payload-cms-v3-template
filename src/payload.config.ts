@@ -9,6 +9,7 @@ import { s3Storage } from "@payloadcms/storage-s3";
 
 import { Users } from "./collections/Users";
 import { Media } from "./collections/Media";
+import { migrations } from "@/migrations";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -30,6 +31,7 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || "",
     },
+    prodMigrations: migrations,
   }),
   sharp,
   email: process.env.SMTP_HOST
