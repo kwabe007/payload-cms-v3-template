@@ -5,11 +5,12 @@ services:
     build:
       context: .
       args:
+        # Send value of S3_BUCKET to the build process so that the correct import map is generated.
         S3_BUCKET: ${S3_BUCKET}
     environment:
-      # Override the database URL since the regular local db uses push mode and container will run in regular migration
-      # mode.
-      - DATABASE_URL=postgres://postgres:password@127.0.0.1:5432/payload_cms_v3_template
+      # The dockerized Payload runs in production, so its migrations won't work with the dev database. This overrides
+      # the database URL given by the `.env` file.
+      - DATABASE_URL=postgres://postgres:password@127.0.0.1:5432/payload_cms_v3_template_docker
     env_file:
       - .env
     network_mode: host
