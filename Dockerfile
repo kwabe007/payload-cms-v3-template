@@ -1,6 +1,6 @@
-ARG PNPM_VERSION=11.1.1
+ARG PNPM_VERSION=12.5.1
 
-FROM node:24.15.0-alpine AS base
+FROM node:24.12.0-alpine AS base
 
 # Read S3_BUCKET env var into Dockerfile so that the appropriate import map can be generated
 ARG S3_BUCKET
