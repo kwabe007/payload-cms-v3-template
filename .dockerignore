@@ -5,6 +5,7 @@
 .react-router/
 .vscode/
 /build/
+/media
 node_modules/
 
 .dockerignore
