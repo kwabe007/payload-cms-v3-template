@@ -6,9 +6,8 @@ import { fileURLToPath } from "url";
 import sharp from "sharp";
 import { nodemailerAdapter } from "@payloadcms/email-nodemailer";
 import { s3Storage } from "@payloadcms/storage-s3";
-
-import { Users } from "./collections/Users";
-import { Media } from "./collections/Media";
+import { Users } from "@/collections/Users";
+import { Media } from "@/collections/Media";
 import { migrations } from "@/migrations";
 
 const filename = fileURLToPath(import.meta.url);

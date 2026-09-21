@@ -4,6 +4,7 @@ import nextTypescript from "eslint-config-next/typescript";
 const eslintConfig = [
   ...nextCoreWebVitals,
   ...nextTypescript,
+
   {
     rules: {
       "@typescript-eslint/ban-ts-comment": "warn",
@@ -23,6 +24,7 @@ const eslintConfig = [
       ],
     },
   },
+
   {
     ignores: [
       ".next/",
@@ -31,6 +33,7 @@ const eslintConfig = [
       "src/migrations",
     ],
   },
+
   {
     settings: {
       // Fix for ESLint 10+: eslint-plugin-react (a dependency of eslint-config-next) uses context.getFilename() which
