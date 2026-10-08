@@ -9,6 +9,7 @@ env:
   REGISTRY: registry.gitlab.com
   GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
   GITLAB_PASSWORD: ${{ secrets.GITLAB_PASSWORD }}
+  # Example: https://dokploy.mydomain.com/api/application.deploy
   DOKPLOY_DEPLOY_ENDPOINT: ${{ vars.DOKPLOY_DEPLOY_ENDPOINT }}
   DOKPLOY_ACCESS_TOKEN: ${{ secrets.DOKPLOY_ACCESS_TOKEN }}
   DOKPLOY_STAGING_APP_ID: ${{ vars.DOKPLOY_STAGING_APP_ID }}
