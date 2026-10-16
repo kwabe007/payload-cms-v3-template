@@ -39,6 +39,14 @@ const nextConfig: NextConfig = {
     return webpackConfig;
   },
   output: "standalone",
+  // Sentry registers its diagnostics-channel hook with module.register() using a path built at runtime, so file tracing
+  // can't find it, and it's missing from the standalone output
+  outputFileTracingIncludes: {
+    "/*": [
+      "./node_modules/.pnpm/@sentry+server-runtime-injection@*/node_modules/@sentry/server-runtime-injection/build/**/*",
+      "./node_modules/.pnpm/@sentry+server-utils@*/node_modules/@sentry/server-utils/build/**/*",
+    ],
+  },
   turbopack: {
     root: path.resolve(dirname),
   },
