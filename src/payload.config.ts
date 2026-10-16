@@ -9,6 +9,9 @@ import { s3Storage } from "@payloadcms/storage-s3";
 import { Users } from "@/collections/Users";
 import { Media } from "@/collections/Media";
 import { migrations } from "@/migrations";
+import { sentryPlugin } from "@payloadcms/plugin-sentry";
+
+import * as Sentry from "@sentry/nextjs";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -68,6 +71,19 @@ export default buildConfig({
         },
         region: process.env.S3_REGION || "",
         endpoint: process.env.S3_ENDPOINT,
+      },
+    }),
+    sentryPlugin({
+      Sentry,
+      options: {
+        // The default context includes the user's email and IP address. Only send identifiers that aren't personal data
+        context: ({ defaultContext }) => ({
+          ...defaultContext,
+          user: defaultContext.user && {
+            id: defaultContext.user.id,
+            collection: defaultContext.user.collection,
+          },
+        }),
       },
     }),
   ],
