@@ -5,8 +5,8 @@
 .react-router/
 .vscode/
 /build/
-/media
 node_modules/
+/uploads/
 
 .dockerignore
 .DS_Store

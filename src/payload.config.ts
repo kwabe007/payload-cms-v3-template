@@ -49,29 +49,33 @@ export default buildConfig({
       })
     : undefined,
   plugins: [
-    ...(process.env.S3_BUCKET
-      ? [
-          s3Storage({
-            collections: {
-              media: {
-                generateFileURL: ({ filename }) => {
-                  return `${process.env.S3_CDN_ENDPOINT}/${filename}`;
-                },
-              },
-            },
-            acl: "public-read",
-            bucket: process.env.S3_BUCKET || "",
-            config: {
-              credentials: {
-                accessKeyId: process.env.S3_ACCESS_KEY_ID || "",
-                secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "",
-              },
-              region: process.env.S3_REGION || "",
-              endpoint: process.env.S3_ENDPOINT,
-            },
-          }),
-        ]
-      : []),
+    s3Storage({
+      enabled: Boolean(process.env.S3_BUCKET),
+      collections: {
+        media: {
+          prefix: "media",
+          generateFileURL: ({ filename, prefix }) => {
+            return `${process.env.S3_CDN_ENDPOINT}/${prefix ? `${prefix}/` : ""}${filename}`;
+          },
+        },
+      },
+      acl: "public-read",
+      bucket: process.env.S3_BUCKET || "",
+      config: {
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID || "",
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "",
+        },
+        region: process.env.S3_REGION || "",
+        endpoint: process.env.S3_ENDPOINT,
+      },
+    }),
   ],
   serverURL: process.env.SERVER_URL,
+  cors: process.env.FRONTEND_URL
+    ? [new URL(process.env.FRONTEND_URL).origin]
+    : [],
+  csrf: process.env.FRONTEND_URL
+    ? [new URL(process.env.FRONTEND_URL).origin]
+    : [],
 });

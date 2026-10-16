@@ -31,10 +31,8 @@ jobs:
           password: ${{ env.GITLAB_PASSWORD }}
 
       - name: Build image
-        # Pass any non-empty string to build arg S3_BUCKET so that the correct import map is generated. The name of the
-        # actual bucket will be passed as a runtime environment variable.
         run: |
-          docker build --build-arg S3_BUCKET=s3-bucket -t $IMAGE_NAME:staging .
+          docker build -t $IMAGE_NAME:staging .
 
       - name: Push image
         run: |

@@ -4,9 +4,6 @@ services:
   cms:
     build:
       context: .
-      args:
-        # Send value of S3_BUCKET to the build process so that the correct import map is generated.
-        S3_BUCKET: ${S3_BUCKET}
     environment:
       # The dockerized Payload runs in production, so its migrations won't work with the dev database. This overrides
       # the database URL given by the `.env` file.
@@ -15,7 +12,7 @@ services:
       - .env
     network_mode: host
     volumes:
-      - media:/app/media
+      - uploads:/app/uploads
 
 volumes:
-  media:
+  uploads:

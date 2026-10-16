@@ -40,7 +40,7 @@ next-env.d.ts
 
 .env
 
-/media
+/uploads
 
 # Playwright
 node_modules/
@@ -48,6 +48,3 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
-
-# Generated import map
-/src/app/(payload)/admin/importMap.js

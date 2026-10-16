@@ -7,6 +7,6 @@ export async function register() {
   // inside this check keeps the Node-only code out of the Edge bundle
   if (process.env.NEXT_RUNTIME === "nodejs") {
     const { validateEnv } = await import("./instrumentation-node");
-    validateEnv();
+    await validateEnv();
   }
 }

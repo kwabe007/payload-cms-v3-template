@@ -2,10 +2,6 @@ ARG PNPM_VERSION=12.5.1
 
 FROM node:24.12.0-alpine AS base
 
-# Read S3_BUCKET env var into Dockerfile so that the appropriate import map can be generated
-ARG S3_BUCKET
-ENV S3_BUCKET=$S3_BUCKET
-
 # Prevent "No TTY" errors from pnpm
 ENV CI=true
 
@@ -31,7 +27,6 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 RUN corepack enable pnpm && corepack prepare pnpm@${PNPM_VERSION} --activate
-RUN pnpm run generate:importmap
 RUN pnpm run build
 
 
@@ -48,8 +43,8 @@ RUN adduser --system --uid 1001 nodejs
 # Create folder for the prerender cache
 RUN mkdir .next
 
-# Create media folder for uploads
-RUN mkdir media
+# Create folder for file uploads
+RUN mkdir uploads
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
