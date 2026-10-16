@@ -4,6 +4,15 @@ services:
   cms:
     build:
       context: .
+      # Read from `.env`. Used by the Sentry build plugin to upload source maps, and NEXT_PUBLIC_SENTRY_DSN is inlined into
+      # the bundles. Leave them unset to build without Sentry.
+      args:
+        SENTRY_URL: ${SENTRY_URL:-}
+        SENTRY_ORG: ${SENTRY_ORG:-}
+        SENTRY_PROJECT: ${SENTRY_PROJECT:-}
+        NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+      secrets:
+        - sentry_auth_token
     environment:
       # The dockerized Payload runs in production, so its migrations won't work with the dev database. This overrides
       # the database URL given by the `.env` file.
@@ -16,3 +25,9 @@ services:
 
 volumes:
   uploads:
+
+secrets:
+  # Passed as a build secret so it isn't stored in the image. Read from SENTRY_AUTH_TOKEN in `.env` or the shell (not
+  # from `.env.sentry-build-plugin`)
+  sentry_auth_token:
+    environment: SENTRY_AUTH_TOKEN

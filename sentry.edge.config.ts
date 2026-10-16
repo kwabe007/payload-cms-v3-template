@@ -6,7 +6,9 @@
 import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
-  dsn: "https://5a2b712d4e044c3692b8683c9bb7dd13@glitchtip.11apps.net/1",
+  // Inlined at build time (NEXT_PUBLIC_), so in Docker it must be passed as a build arg. Sentry is disabled when no DSN
+  // is set
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN || undefined,
 
   dataCollection: {
     // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:

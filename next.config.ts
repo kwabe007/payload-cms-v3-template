@@ -3,9 +3,23 @@ import { withPayload } from "@payloadcms/next/withPayload";
 import type { NextConfig } from "next";
 import path from "path";
 import { fileURLToPath } from "url";
+import { z } from "zod";
 
 const __filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(__filename);
+
+// The Sentry DSN is inlined into the server and client bundles, so it's checked here to fail the build instead of
+// silently disabling Sentry. Unset or empty disables Sentry
+const sentryDsn = z
+  .union([z.literal(""), z.url()])
+  .optional()
+  .safeParse(process.env.NEXT_PUBLIC_SENTRY_DSN);
+
+if (!sentryDsn.success) {
+  throw new Error(
+    `Invalid NEXT_PUBLIC_SENTRY_DSN:\n${z.prettifyError(sentryDsn.error)}`,
+  );
+}
 
 const nextConfig: NextConfig = {
   images: {
@@ -36,10 +50,11 @@ export default withSentryConfig(
     // For all available options, see:
     // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-    org: "default",
-
-    project: "itradespy",
-    sentryUrl: "https://glitchtip.11apps.net/",
+    // Where source maps are uploaded. Read at build time, so in Docker they must be passed as build args. Empty strings
+    // are turned into undefined because the plugin only falls back to its defaults for undefined values
+    org: process.env.SENTRY_ORG || undefined,
+    project: process.env.SENTRY_PROJECT || undefined,
+    sentryUrl: process.env.SENTRY_URL || undefined,
 
     // Only print logs for uploading source maps in CI
     silent: !process.env.CI,

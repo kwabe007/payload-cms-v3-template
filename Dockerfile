@@ -28,6 +28,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 RUN corepack enable pnpm && corepack prepare pnpm@${PNPM_VERSION} --activate
+# Sentry project that source maps are uploaded to, and the DSN that's inlined into the client bundle
+ARG SENTRY_URL
+ARG SENTRY_ORG
+ARG SENTRY_PROJECT
+ARG NEXT_PUBLIC_SENTRY_DSN
 # Sentry auth token for uploading source maps. Passed as a secret so it isn't stored in the image
 RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
     pnpm run build

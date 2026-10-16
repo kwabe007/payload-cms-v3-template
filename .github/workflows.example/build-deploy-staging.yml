@@ -33,7 +33,13 @@ jobs:
 
       - name: Build image
         run: |
-          docker build --secret id=sentry_auth_token,env=SENTRY_AUTH_TOKEN -t $IMAGE_NAME:staging .
+          docker build \
+            --secret id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
+            --build-arg SENTRY_URL=${{ vars.SENTRY_URL }} \
+            --build-arg SENTRY_ORG=${{ vars.SENTRY_ORG }} \
+            --build-arg SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }} \
+            --build-arg NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }} \
+            -t $IMAGE_NAME:staging .
 
       - name: Push image
         run: |
