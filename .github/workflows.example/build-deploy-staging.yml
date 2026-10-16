@@ -33,7 +33,7 @@ jobs:
 
       - name: Build image
         run: |
-          docker build -t $IMAGE_NAME:staging .
+          docker build --secret id=sentry_auth_token,env=SENTRY_AUTH_TOKEN -t $IMAGE_NAME:staging .
 
       - name: Push image
         run: |

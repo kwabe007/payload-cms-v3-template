@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 ARG PNPM_VERSION=12.5.1
 
 FROM node:24.12.0-alpine AS base
@@ -27,7 +28,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 RUN corepack enable pnpm && corepack prepare pnpm@${PNPM_VERSION} --activate
-RUN pnpm run build
+# Sentry auth token for uploading source maps. Passed as a secret so it isn't stored in the image
+RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
+    pnpm run build
 
 
 # Production image
@@ -53,11 +56,11 @@ COPY --from=builder /app/.next/static ./.next/static
 
 RUN chown -R nodejs:nodejs /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 # Learn more here: https://nextjs.org/telemetry
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
-ENV PORT 3000
+ENV PORT=3000
 
 EXPOSE 3000
 
